@@ -1,7 +1,14 @@
+bola
+zagueiro
+atacante
+arremesso
+goleiro
+gol
 Softbol
 Triatlo
 BMX
 Motocross
+Estádio
 Esgrima
 Hóquei
 patins
@@ -11,6 +18,7 @@ Skeleton
 Tiro 
 arco 
 paralímpico
+bola
 Voleibol
 Tênis
 Corrida
@@ -19,7 +27,7 @@ trilha
 Maratona
 Pentatlo 
 Patinação
-Triatlo 
+Triatlo
 obstáculos
 Trampolim
 Slackline
@@ -54,7 +62,6 @@ Snowboard
 Basquete 
 Curling 
 snowmobile
-subaquático
 Snowkiting
 Rafting
 Desportos 
@@ -66,10 +73,9 @@ Canyoning
 Tênis 
 Ciclocross
 dragster
-resistência
+de resistência
 Cricket 
 Handebol
-Hóquei
 Padel
 Airsoft
 Paintball

@@ -1,5 +1,4 @@
 Economia
-Mercado
 Finanças
 Emprego
 Crise
@@ -18,15 +17,12 @@ Despesa
 Exportação
 Importação
 Comércio
-Consumo
 Poupança
 Crédito
 Desenvolvimento
 Globalização
-Regulação
 Indústria
 Agricultura
-Serviços
 Desigualdade
 Demanda
 Commodity
@@ -34,8 +30,6 @@ Inovação
 Recessão
 Câmbio
 Investidor
-Mercado financeiro
-Política econômica
 Ciclo econômico
 Déficit
 Superávit
@@ -45,7 +39,7 @@ Consumidor
 FMI
 Euro
 Yuan
-Investimento estrangeiro
+Investimento
 Bolsa
 Capitalismo
 Socialismo
@@ -82,7 +76,6 @@ Estabilização
 Protecionismo
 Concorrência
 Estrangeiro
-Propriedade
 Regulatório
 Exportadores
 Industrial
@@ -92,19 +85,11 @@ Incentivado
 Indicador
 Especulação
 Comercialização
-Setorial
-Produção
 Oferta
-Recursos
 Compra
 Pública
-Diversificação
-Reforma
 Tributária
 Investir
-Planejamento
-Estratégia
-Internacionalização
 Produto
 Ativos
 Financiamento
@@ -122,8 +107,6 @@ Aumento
 Faturamento
 Preços
 Monetária
-Equilíbrio
-Fiscal
 Público
 Preço
 Tributos
@@ -139,7 +122,6 @@ Cambial
 Vendas
 Economias
 Impacto
-Qualidade
 Previdência
 Combustível
 Estabilização
@@ -170,4 +152,4 @@ Valor
 Economista
 Cálculos
 Importadora
-Benefício
+Benefíc
