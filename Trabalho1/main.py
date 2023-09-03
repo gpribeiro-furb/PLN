@@ -2,7 +2,9 @@
 
 import requests
 import json
+import nltk
 from bs4 import BeautifulSoup
+from nltk.stem import RSLPStemmer
 
 
 # Função para formatar a data da matéria
@@ -81,7 +83,7 @@ def carregaJson(path="materias.json"):
 
 def carregaStopwords():
     # Open the file for reading
-    with open('stopwords.txt', 'r') as file:
+    with open('stopwords.txt', 'r', encoding='utf-8') as file:
         # Read the content of the file
         content = file.read()
 
@@ -90,22 +92,97 @@ def carregaStopwords():
 
     # Remove any empty strings resulting from trailing newline
     words = [word for word in words if word]
+    temp = []
+    for word in words:
+        word = word.replace(" ","")
+        temp.append(word)
+    words = temp
 
     return words
+
+def aplicarStem(listaPalavras):
+    # nltk.download('rslp')
+    # nltk.download('punkt')
+    stemmer = RSLPStemmer()
+
+    novasPalavras = []
+    for palavra in listaPalavras:
+        novasPalavras.append(stemmer.stem(palavra))
+    return novasPalavras
+
+def removerStopwords(materias):
+    for materia in materias:
+        materia["descricao"] = nltk.word_tokenize(materia["descricao"])
+        # Cria uma tabela de tradução que remove símbolos
+        translator = str.maketrans('', '', "“”!@#$%^&*()_+=[]{};:'\"<>,.?/~\\|")
+        novaDescricao = []
+        for palavra in materia["descricao"]:
+            palavra = palavra.translate(translator)
+            novaDescricao.append(palavra.lower())
+
+        novaDescricao = [word for word in novaDescricao if word]
+        materia["descricao"] = [word for word in novaDescricao if word.lower() not in stopwords]
+
+def carregarVocabulario(categorias):
+    for categoria in categorias:
+        # Open the file for reading
+        with open(categoria+'.txt', 'r', encoding='utf-8') as file:
+            # Read the content of the file
+            content = file.read()
+
+        # Split the content into words using newline characters as separators
+        words = content.split('\n')
+
+        # Remove any empty strings resulting from trailing newline
+        words = [word for word in words if word]
+        temp = []
+        for word in words:
+            word = word.replace(" ", "")
+            temp.append(word)
+        words = temp
+        words = aplicarStem(words)
+        vocabularios.append(words)
+
+def categorizarMaterias(materias):
+    for materia in materias:
+        temp = []
+        materia["matches"] = []
+        for vocabulario in vocabularios:
+            temp.append(0)
+
+        for palavra in materia["descricao"]:
+            index = 0
+            for vocabulario in vocabularios:
+                if(palavra in vocabulario):
+                    temp[index] = temp[index] + 1
+                    materia["matches"].append(palavra)
+                index = index + 1
+
+        materia["categoria"] = categorias[temp.index(max(temp))]
 
 # TO-DO: ler json
 materias = carregaJson()
 stopwords = carregaStopwords()
-print(materias)
 
 # TO-DO: Remover stopwords to texto
+removerStopwords(materias)
 
-for materia in materias:
-    for word in stopwords:
-        materia["descricao"].replace(word, "")
-
-print(materias)
 # TO-DO: Aplicar STEM, aka fazer com que as palavras fiquem iguais (drogas, drogado, drogaria)
+for materia in materias:
+    materia["descricao"] = aplicarStem(materia["descricao"])
 
 # TO-DO: Criar vocabulário, aka selecionar palavras e categorias para categorizar o banco de palavras
+categorias = ["economia", "saude", "turismo", "esporte"]
+vocabularios = []
+carregarVocabulario(categorias)
+
+categorizarMaterias(materias)
+
+with open("teste.json", "w") as f:
+    json.dump(materias, f)
+
+print(vocabularios)
+print(materias)
+
+
 
