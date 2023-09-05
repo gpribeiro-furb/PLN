@@ -101,8 +101,6 @@ def carregaStopwords():
     return words
 
 def aplicarStem(listaPalavras):
-    # nltk.download('rslp')
-    # nltk.download('punkt')
     stemmer = RSLPStemmer()
 
     novasPalavras = []
@@ -158,11 +156,17 @@ def categorizarMaterias(materias):
                     materia["matches"].append(palavra)
                 index = index + 1
 
-        materia["categoria"] = categorias[temp.index(max(temp))]
+        qntdCategoriaMaisRelacionada = max(temp)
+        indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else temp.index(qntdCategoriaMaisRelacionada)
+        materia["categoria"] = categorias[indexCategoriaMaisRelacionada]
 
 # TO-DO: ler json
+# criarJsonAtualizado()
 materias = carregaJson()
 stopwords = carregaStopwords()
+
+# nltk.download('rslp')
+# nltk.download('punkt')
 
 # TO-DO: Remover stopwords to texto
 removerStopwords(materias)
@@ -172,7 +176,7 @@ for materia in materias:
     materia["descricao"] = aplicarStem(materia["descricao"])
 
 # TO-DO: Criar vocabulário, aka selecionar palavras e categorias para categorizar o banco de palavras
-categorias = ["economia", "saude", "turismo", "esporte"]
+categorias = ["outros", "economia", "saude", "turismo", "esporte", "desastre"]
 vocabularios = []
 carregarVocabulario(categorias)
 

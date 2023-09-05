@@ -2,6 +2,7 @@ Saúde
 pasciente
 febre
 saudável
+pele
 Doença
 Medicina
 Hospital
@@ -14,6 +15,8 @@ gripe
 tosse
 covid
 doenças
+academia
+exercicios
 doença
 doente
 nutrientes
@@ -117,10 +120,8 @@ Epidemiologia
 Emergência
 Reanimação
 Socorros
-Primeiros
 Ocupacional
 Média
-Primeira
 Ambulância
 Paramédico
 Hospitalização
@@ -137,3 +138,4 @@ Biomédico
 Genética
 clinico
 clinica
+vida

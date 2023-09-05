@@ -1,4 +1,6 @@
 Turismo
+Avião
+trem
 Viagem
 Destino
 Visitante
@@ -8,9 +10,7 @@ Turista
 Roteiro
 Cultura
 Férias
-Patrimônio
 Exploração
-Experiência
 Reserva
 Lazer
 Passeio
@@ -23,20 +23,17 @@ Gastronomia
 Entretenimento
 Viajante
 Monumento
-Parque nacional
+Parque
 Tradição
-Promoção
 Viagens
 Cruzeiro
 Cultural
 Acomodação
-Voo
+Vôo
 Hotéis
 Estadia
 Atrativo
-Ecologia
 Evento
-Transporte
 Rota
 Hospedagem
 Destinos
@@ -46,7 +43,6 @@ Praias
 Gastronomia
 Promoções
 Agências
-Cruzeiros
 Culturais
 Acomodações
 Voos
@@ -55,39 +51,36 @@ Tradições
 Aventuras
 Explorações
 Visitantes
-Patrimônios
-Itinerários
-Reservas
-Parques
+aeromoça
+camareira
+hotel
 Estadias
 Eventos
 Transportes
 Roteiros
 Aéreas
-Viage
-Roteiro gastronômico
-Público
+Viagem
 Trilhas
-Econômica
 Luxuosa
 Resorts
 Recreação
-Ecoturismo boutique
+Ecoturismo
 Excursões
 Cultural
-Nacional
 Confortáveis
 Pacotes
 Luxo
-Guias locais
-Experiência
-Aventura natural
-Praias areia
-Centros
+Guias
+Aventura
 Descoberta
 Caminhadas
 Mergulho
-Interesse
 Diversão
-Oportunidades
 Estâncias
+paisagem
+hospitalidade
+airbnb
+passagem
+banda 
+show
+atrações
