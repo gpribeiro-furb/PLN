@@ -21,7 +21,7 @@ def removerEspacoFinal(string):
     else:
         return string
 
-
+# Função para buscar matérias das 3 primeiras páginas do NSC Total e gerar o "materias.json"
 def criarJsonAtualizado():
     # Inicia lista de atributos
     titles = []
@@ -70,6 +70,7 @@ def criarJsonAtualizado():
 
     # Criando o JSON para exportar
     materiasJson = json.dumps(materias)
+    print("JSON exportado para o arquivo 'materias.json' : ")
     print(materiasJson)
 
     # Abrindo e escrevendo o arquivo JSON
@@ -77,20 +78,21 @@ def criarJsonAtualizado():
         json.dump(materias, f)
 
 
+# Função para carregar o arquvo json de materias
 def carregaJson(path="materias.json"):
     with open(path, 'r') as file:
         return json.load(file)
 
+# Função para carregar as stopwords do arquivo stopwords.txt
 def carregaStopwords():
-    # Open the file for reading
+    # Ler o arquivo
     with open('stopwords.txt', 'r', encoding='utf-8') as file:
-        # Read the content of the file
         content = file.read()
 
-    # Split the content into words using newline characters as separators
+    # Separar as palavras por linha nova
     words = content.split('\n')
 
-    # Remove any empty strings resulting from trailing newline
+    # Remover os espaços em branco
     words = [word for word in words if word]
     temp = []
     for word in words:
@@ -100,14 +102,16 @@ def carregaStopwords():
 
     return words
 
+# Função para aplicar o Stemming em uma lista de palavras
 def aplicarStem(listaPalavras):
     stemmer = RSLPStemmer()
 
-    novasPalavras = []
+    temp = []
     for palavra in listaPalavras:
-        novasPalavras.append(stemmer.stem(palavra))
-    return novasPalavras
+        temp.append(stemmer.stem(palavra))
+    return temp
 
+# Função para remover as stopwords
 def removerStopwords(materias):
     for materia in materias:
         materia["descricao"] = nltk.word_tokenize(materia["descricao"])
@@ -121,46 +125,52 @@ def removerStopwords(materias):
         novaDescricao = [word for word in novaDescricao if word]
         materia["descricao"] = [word for word in novaDescricao if word.lower() not in stopwords]
 
+# Função para carregar o vocabulário com base nas categorias de classificação informadas
 def carregarVocabulario(categorias):
     for categoria in categorias:
-        # Open the file for reading
+        # Ler o arquivo
         with open(categoria+'.txt', 'r', encoding='utf-8') as file:
-            # Read the content of the file
             content = file.read()
 
-        # Split the content into words using newline characters as separators
+        # Separar as palavras por linha nova
         words = content.split('\n')
 
-        # Remove any empty strings resulting from trailing newline
+        # Remove espaços em branco
         words = [word for word in words if word]
         temp = []
         for word in words:
             word = word.replace(" ", "")
             temp.append(word)
         words = temp
+        # Aplica o stemming nas palavras
         words = aplicarStem(words)
+        # Adiciona as palavras tratadas em uma lista de vocabulários para ser usada na categorização
         vocabularios.append(words)
 
+# Função para categorias as materias
 def categorizarMaterias(materias):
     for materia in materias:
-        temp = []
+        # Preparando as listas de categorias e de similaridades
+        categorias = []
         materia["matches"] = []
         for vocabulario in vocabularios:
-            temp.append(0)
+            categorias.append(0)
 
+        # Contar a quantidade de palavras iguais
         for palavra in materia["descricao"]:
             index = 0
             for vocabulario in vocabularios:
                 if(palavra in vocabulario):
-                    temp[index] = temp[index] + 1
+                    categorias[index] = categorias[index] + 1
                     materia["matches"].append(palavra)
                 index = index + 1
 
-        qntdCategoriaMaisRelacionada = max(temp)
-        indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else temp.index(qntdCategoriaMaisRelacionada)
+        # Categorizar as materias com base nas similaridades
+        qntdCategoriaMaisRelacionada = max(categorias)
+        indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else categorias.index(qntdCategoriaMaisRelacionada)
         materia["categoria"] = categorias[indexCategoriaMaisRelacionada]
 
-# TO-DO: ler json
+
 # criarJsonAtualizado()
 materias = carregaJson()
 stopwords = carregaStopwords()
@@ -180,9 +190,11 @@ categorias = ["outros", "economia", "saude", "turismo", "esporte", "desastre"]
 vocabularios = []
 carregarVocabulario(categorias)
 
+
 categorizarMaterias(materias)
 
-with open("teste.json", "w") as f:
+print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
+with open("resultado.json", "w") as f:
     json.dump(materias, f)
 
 print(vocabularios)
