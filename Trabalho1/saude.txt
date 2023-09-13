@@ -120,7 +120,6 @@ Epidemiologia
 Emergência
 Reanimação
 Socorros
-Ocupacional
 Média
 Ambulância
 Paramédico
