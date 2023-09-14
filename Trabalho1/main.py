@@ -172,43 +172,43 @@ def categorizarMaterias(materias):
         materia["resultado"] = categorias[indexCategoriaMaisRelacionada]
 
 # Função para aplicar o Jaccard Similarity
-def categorizarJaccard(materias):
-    for materia in materias:
-        # Preparando as listas de categorias
-        valCategorias = []
+# def categorizarJaccard(materias):
+#     for materia in materias:
+#         # Preparando as listas de categorias
+#         valCategorias = []
+#
+#         # Contar a quantidade de palavras iguais
+#         for vocabulario in vocabularios:
+#             intersecao = len([value for value in vocabulario if value in materia["descricao"]])
+#             uniao = len(set(materia["descricao"]).union(set(vocabulario)))
+#             valCategorias.append(intersecao / uniao)
+#
+#         # Categorizar as materias com base nas similaridades
+#         qntdCategoriaMaisRelacionada = max(valCategorias)
+#         indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else valCategorias.index(qntdCategoriaMaisRelacionada)
+#         materia["resultadoJaccard"] = categorias[indexCategoriaMaisRelacionada]
 
-        # Contar a quantidade de palavras iguais
-        for vocabulario in vocabularios:
-            intersecao = len([value for value in vocabulario if value in materia["descricao"]])
-            uniao = len(set(materia["descricao"]).union(set(vocabulario)))
-            valCategorias.append(intersecao / uniao)
-
-        # Categorizar as materias com base nas similaridades
-        qntdCategoriaMaisRelacionada = max(valCategorias)
-        indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else valCategorias.index(qntdCategoriaMaisRelacionada)
-        materia["resultadoJaccard"] = categorias[indexCategoriaMaisRelacionada]
-
-def categorizarMaterias(materias):
-    palavrasTemp = []
-    for materia in materias:
-        palavrasTemp.append(materia["descricao"])
-
-    # Create a TfidfVectorizer
-    tfidf_vectorizer = TfidfVectorizer()
-
-    # Fit and transform the text data
-    tfidf_matrix = tfidf_vectorizer.fit_transform(documents)
-
-    # Get the TF-IDF feature names (words or terms)
-    palavrasClassificadaDosTextos = tfidf_vectorizer.get_feature_names_out()
-
-    palavrasClassificaoTemp 
-
-    # Para cada categoria
-    # Para cada palavra
-    # Pegar a recorrencia com o tfidf da palavra no texto inteiro
-    # Passar pelas materias, e pegar os matches
-    # Fazer a divisão de: recorrencia da "palavra/match" na matéria atual / recorrencia da "palavra/match" no texto inteiro
+# def categorizarMaterias(materias):
+#     palavrasTemp = []
+#     for materia in materias:
+#         palavrasTemp.append(materia["descricao"])
+#
+#     # Create a TfidfVectorizer
+#     tfidf_vectorizer = TfidfVectorizer()
+#
+#     # Fit and transform the text data
+#     tfidf_matrix = tfidf_vectorizer.fit_transform(documents)
+#
+#     # Get the TF-IDF feature names (words or terms)
+#     palavrasClassificadaDosTextos = tfidf_vectorizer.get_feature_names_out()
+#
+#     palavrasClassificaoTemp
+#
+#     # Para cada categoria
+#     # Para cada palavra
+#     # Pegar a recorrencia com o tfidf da palavra no texto inteiro
+#     # Passar pelas materias, e pegar os matches
+#     # Fazer a divisão de: recorrencia da "palavra/match" na matéria atual / recorrencia da "palavra/match" no texto inteiro
 
 # criarJsonAtualizado()
 materias = carregaJson()
@@ -233,17 +233,17 @@ carregarVocabulario(categorias)
 categorizarMaterias(materias)
 
 # TO-DO: Aplicar os índices Jaccard_Similarity e tfidf
-categorizarJaccard(materias)
-
-for materia in materias:
-    print(materia["titulo"])
-    print("Normal x Jaccard")
-    print(materia["resultado"], " - ", materia["resultadoJaccard"])
-    if(materia["resultado"] != materia["resultadoJaccard"]):
-        print("EEROOOOO================================================================")
+# categorizarJaccard(materias)
+#
+# for materia in materias:
+#     print(materia["titulo"])
+#     print("Normal x Jaccard")
+#     print(materia["resultado"], " - ", materia["resultadoJaccard"])
+#     if(materia["resultado"] != materia["resultadoJaccard"]):
+#         print("EEROOOOO================================================================")
 
 # TF-IDF
-categorizarTfIdf(materias)
+# categorizarTfIdf(materias)
 
 # TO-DO: Comparar com a categoria correta
 
@@ -251,7 +251,7 @@ print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
 with open("resultado.json", "w") as f:
     json.dump(materias, f)
 
-print(vocabularios)
+# print(vocabularios)
 print(materias)
 
 
