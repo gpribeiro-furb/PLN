@@ -6,6 +6,7 @@ import nltk
 from bs4 import BeautifulSoup
 from nltk.stem import RSLPStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
 
 
 # Função para formatar a data da matéria
@@ -172,43 +173,63 @@ def categorizarMaterias(materias):
         materia["resultado"] = categorias[indexCategoriaMaisRelacionada]
 
 # Função para aplicar o Jaccard Similarity
-# def categorizarJaccard(materias):
-#     for materia in materias:
-#         # Preparando as listas de categorias
-#         valCategorias = []
-#
-#         # Contar a quantidade de palavras iguais
-#         for vocabulario in vocabularios:
-#             intersecao = len([value for value in vocabulario if value in materia["descricao"]])
-#             uniao = len(set(materia["descricao"]).union(set(vocabulario)))
-#             valCategorias.append(intersecao / uniao)
-#
-#         # Categorizar as materias com base nas similaridades
-#         qntdCategoriaMaisRelacionada = max(valCategorias)
-#         indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else valCategorias.index(qntdCategoriaMaisRelacionada)
-#         materia["resultadoJaccard"] = categorias[indexCategoriaMaisRelacionada]
+def categorizarJaccard(materias):
+    for materia in materias:
+        # Preparando as listas de categorias
+        valCategorias = []
 
-# def categorizarMaterias(materias):
-#     palavrasTemp = []
-#     for materia in materias:
-#         palavrasTemp.append(materia["descricao"])
-#
-#     # Create a TfidfVectorizer
-#     tfidf_vectorizer = TfidfVectorizer()
-#
-#     # Fit and transform the text data
-#     tfidf_matrix = tfidf_vectorizer.fit_transform(documents)
-#
-#     # Get the TF-IDF feature names (words or terms)
-#     palavrasClassificadaDosTextos = tfidf_vectorizer.get_feature_names_out()
-#
-#     palavrasClassificaoTemp
-#
-#     # Para cada categoria
-#     # Para cada palavra
-#     # Pegar a recorrencia com o tfidf da palavra no texto inteiro
-#     # Passar pelas materias, e pegar os matches
-#     # Fazer a divisão de: recorrencia da "palavra/match" na matéria atual / recorrencia da "palavra/match" no texto inteiro
+        # Contar a quantidade de palavras iguais
+        for vocabulario in vocabularios:
+            intersecao = len([value for value in vocabulario if value in materia["descricao"]])
+            uniao = len(set(materia["descricao"]).union(set(vocabulario)))
+            valCategorias.append(intersecao / uniao)
+
+        # Categorizar as materias com base nas similaridades
+        qntdCategoriaMaisRelacionada = max(valCategorias)
+        indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else valCategorias.index(qntdCategoriaMaisRelacionada)
+        materia["resultadoJaccard"] = categorias[indexCategoriaMaisRelacionada]
+
+# Função para aplicar o TF-IDF
+def categorizarTfIdf(materias):
+    palavrasTemp = ""
+    for materia in materias:
+        palavrasTemp += " ".join(materia["descricao"])
+
+
+    tfidf_vectorizer = TfidfVectorizer()
+    tfidf_matrix = tfidf_vectorizer.fit_transform([palavrasTemp])
+
+    # Get the TF-IDF feature names (words or terms)
+    palavrasClassificadaDosTextos = tfidf_vectorizer.get_feature_names_out()
+    print(palavrasClassificadaDosTextos)
+
+    indexCategoria = 0
+    listaPalavrasComPeso = []
+    # Para cada categoria
+    for vocabulario in vocabularios:
+    # Para cada palavra
+        for palavra in vocabulario:
+            indexPalavra = np.where(palavrasClassificadaDosTextos == palavra)
+
+            if(np.any(indexPalavra[0])):
+                trueIndex = indexPalavra[0][0]
+                peso = tfidf_matrix[0, trueIndex]
+                categoria = categorias[indexCategoria]
+                print(categoria + " - " +palavra + " - "+ str(peso))
+                listaPalavrasComPeso.append([categoria, palavra, peso])
+            else:
+                print(palavra)
+        indexCategoria+=1
+
+    # Fazer a divisão de: recorrencia da "palavra/match" na matéria atual / recorrencia da "palavra/match" no texto inteiro
+    for materia in materias:
+        palavrasTemp = ""
+        for materia in materias:
+            palavrasTemp += " ".join(materia["descricao"])
+        vetorMateria = TfidfVectorizer()
+        matrix_materia = vetorMateria.fit_transform([palavrasTemp])
+        palavrasClassificadaDaMateria = vetorMateria.get_feature_names_out()
+
 
 # criarJsonAtualizado()
 materias = carregaJson()
@@ -230,7 +251,7 @@ vocabularios = []
 carregarVocabulario(categorias)
 
 # Categorização da forma antiga
-categorizarMaterias(materias)
+# categorizarMaterias(materias)
 
 # TO-DO: Aplicar os índices Jaccard_Similarity e tfidf
 # categorizarJaccard(materias)
@@ -243,16 +264,17 @@ categorizarMaterias(materias)
 #         print("EEROOOOO================================================================")
 
 # TF-IDF
-# categorizarTfIdf(materias)
+categorizarTfIdf(materias)
 
 # TO-DO: Comparar com a categoria correta
 
-print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
-with open("resultado.json", "w") as f:
-    json.dump(materias, f)
+
+# print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
+# with open("resultado.json", "w") as f:
+#     json.dump(materias, f)
 
 # print(vocabularios)
-print(materias)
+# print(materias)
 
 
 
