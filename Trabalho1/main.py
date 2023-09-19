@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from nltk.stem import RSLPStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
+from collections import defaultdict
 
 
 # Função para formatar a data da matéria
@@ -215,7 +216,7 @@ def categorizarTfIdf(materias):
                 trueIndex = indexPalavra[0][0]
                 peso = tfidf_matrix[0, trueIndex]
                 categoria = categorias[indexCategoria]
-                print(categoria + " - " +palavra + " - "+ str(peso))
+                print(categoria + " - " + palavra + " - " + str(peso))
                 listaPalavrasComPeso.append([categoria, palavra, peso])
             else:
                 print(palavra)
@@ -223,17 +224,76 @@ def categorizarTfIdf(materias):
 
     # Fazer a divisão de: recorrencia da "palavra/match" na matéria atual / recorrencia da "palavra/match" no texto inteiro
     for materia in materias:
-        palavrasTemp = ""
-        for materia in materias:
-            palavrasTemp += " ".join(materia["descricao"])
+        palavrasTemp = " ".join(materia["descricao"])
+
+        tempCategorias= []
+        print(materia["descricaoRaw"])
         vetorMateria = TfidfVectorizer()
         matrix_materia = vetorMateria.fit_transform([palavrasTemp])
         palavrasClassificadaDaMateria = vetorMateria.get_feature_names_out()
+        for palavraAtual in palavrasClassificadaDaMateria:
+            indiceComPeso = [index for index, sub_list in enumerate(listaPalavrasComPeso) if sub_list[1] == palavraAtual]
+            if(np.any(indiceComPeso)):
+                objetoPalavraComPeso = listaPalavrasComPeso[indiceComPeso[0]]
+                indexPalavraMateria = np.where(palavrasClassificadaDaMateria == palavraAtual)
+                if (np.any(indexPalavraMateria[0])):
+                    trueIndex = indexPalavraMateria[0][0]
+                    pesoAtual = matrix_materia[0, trueIndex]
+                    divisaoFinal = pesoAtual/objetoPalavraComPeso[2]
+                    tempCategorias.append([objetoPalavraComPeso[0], divisaoFinal])
+
+                    print(objetoPalavraComPeso)
+                    print("Palavra: " + objetoPalavraComPeso[1])
+                    print("Peso atual: " + str(pesoAtual))
+                    print("Peso geral: " + str(objetoPalavraComPeso[2]))
+                    print("Atual/geral: " + str(divisaoFinal))
+
+        if(len(tempCategorias) > 0):
+            # category_counts = Counter(item[0] for item in tempCategorias)
+            # sorted_categories = sorted(tempCategorias, key=lambda item: (-int(category_counts.get(item[0], 0)), item[1]))
+            # sorted_categories = sorted(tempCategorias, key=lambda item: (-category_counts[item[0]], item[1]))
+            # most_common_category = sorted_categories[0][0]
+
+            most_common_category = None
+            most_common_count = 0
+
+            # Dictionary to store total weight per category
+            category_weights = {}
+
+            # Iterate through the array and calculate the most common category and category weights
+            for category, weight in tempCategorias:
+                # Calculate category count
+                if category in category_weights:
+                    category_weights[category] += int(weight)
+                else:
+                    category_weights[category] = int(weight)
+
+                # Check if this category is the most common so far
+                if category_weights[category] > most_common_count:
+                    most_common_count = category_weights[category]
+                    most_common_category = category
+
+            # Find categories with the most weight (in case of a tie)
+            most_weighty_categories = [category for category, weight in category_weights.items() if
+                                       weight == most_common_count]
+
+            materia["resultado"] = most_weighty_categories[0]
+        else:
+            materia["resultado"] = "outros"
+
+        print(materia["resultado"])
+        print(" ================================= ")
+
+
 
 
 # criarJsonAtualizado()
 materias = carregaJson()
+for materia in materias:
+    materia["descricaoRaw"] = str(materia["descricao"])
+
 stopwords = carregaStopwords()
+
 
 # nltk.download('rslp')
 # nltk.download('punkt')

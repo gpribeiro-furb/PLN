@@ -24,7 +24,6 @@ Diagnóstico
 Prevenção
 Medicamento
 Enfermagem
-Consulta
 Cirurgia
 nutricional
 Farmácia
@@ -51,8 +50,6 @@ Psiquiatria
 Ansiedade
 Depressão
 Transtorno
-Mulher
-Homem
 Geriatria
 Envelhecimento
 Alzheimer
