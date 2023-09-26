@@ -256,11 +256,6 @@ def categorizarTfIdf(materias):
                     print(" ")
 
         if(len(tempCategorias) > 0):
-            # category_counts = Counter(item[0] for item in tempCategorias)
-            # sorted_categories = sorted(tempCategorias, key=lambda item: (-int(category_counts.get(item[0], 0)), item[1]))
-            # sorted_categories = sorted(tempCategorias, key=lambda item: (-category_counts[item[0]], item[1]))
-            # most_common_category = sorted_categories[0][0]
-
             most_common_category = None
             most_common_count = 0
 
@@ -304,63 +299,30 @@ stopwords = carregaStopwords()
 # nltk.download('rslp')
 # nltk.download('punkt')
 
-# TO-DO: Remover stopwords to texto
 removerStopwords(materias)
 
-# TO-DO: Aplicar STEM, aka fazer com que as palavras fiquem iguais (drogas, drogado, drogaria)
 for materia in materias:
     materia["descricao"] = aplicarStem(materia["descricao"])
 
-# TO-DO: Criar vocabulário, aka selecionar palavras e categorias para categorizar o banco de palavras
 categorias = ["outros", "economia", "saude", "turismo", "esporte", "desastre"]
 vocabularios = []
 carregarVocabulario(categorias)
 
-# Categorização da forma antiga
 categorizarMaterias(materias)
-
-
-# TO-DO: Aplicar os índices Jaccard_Similarity e tfidf
 categorizarJaccard(materias)
-
-print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
-with open("resultadoJaccard.json", "w") as f:
-     json.dump(materias, f)
-
 categorizarTfIdf(materias)
+
+# Exportação
+print("\n===========================\n")
 print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
-with open("resultadoTf.json", "w") as f:
+with open("resultado.json", "w") as f:
      json.dump(materias, f)
 
-#
-# for materia in materias:
-#     print(materia["titulo"])
-#     print("Normal x Jaccard")
-#     print(materia["resultado"], " - ", materia["resultadoJaccard"])
-#     if(materia["resultado"] != materia["resultadoJaccard"]):
-#         print("EEROOOOO================================================================")
+print("\n===========================\n")
+print("Exportando CSV com os resultados 'tabelaFinal.csv'")
 
-# TF-IDF
-#categorizarTfIdf(materias)
-
-
-# TO-DO: Comparar com a categoria correta
-
-
-#print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
-#with open("resultado.json", "w") as f:
-#     json.dump(materias, f)
-
-# print(vocabularios)
-# print(materias)
-
-# df = pd.DataFrame(materias)
-# excel_writer = pd.ExcelWriter("Materias.xlsx", engine="openpyxl")
-# df.to_excel(excel_writer, sheet_name="Materias", index=False)
-# print(df)
-# df.to_csv('resultadoTf.csv', index=False)
-
-linhas = ["Número;Matéria;Resultado Count;Resultado Jaccard;Resultado TF-IDF;Categoria Real"]
+linhas = []
+linhas.append(str("Número;Matéria;Resultado Count;Resultado Jaccard;Resultado TF-IDF;Categoria Real"))
 index = 1
 
 for materia in materias:
@@ -376,15 +338,14 @@ for materia in materias:
     linha += materia["resultadoTfIdf"]
     linha += ";"
     linha += materia["categoria"]
-    linhas.append(linha)
+    linhas.append(str(linha))
     index+=1
 
 csv_data = "\n".join(linhas)
+csv_data = csv_data.replace("“", "\'")
+csv_data = csv_data.replace("”", "\'")
+csv_data = csv_data.replace(" ", "")
 
 csv_file_path = "tabelaFinal.csv"
-
-with open(csv_file_path, 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-
-    for row in csv_data.split('\n'):
-        writer.writerow([row])
+with open(csv_file_path, 'w') as file:
+    file.write(csv_data)
