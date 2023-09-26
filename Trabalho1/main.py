@@ -197,19 +197,17 @@ def categorizarTfIdf(materias):
     for materia in materias:
         palavrasTemp += " ".join(materia["descricao"])
 
-
+    # Faz o processamento da recorrência das palavras que existem em todas matérias
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform([palavrasTemp])
 
-    # Get the TF-IDF feature names (words or terms)
+    # Lista de palavras com seus pesos
     palavrasClassificadaDosTextos = tfidf_vectorizer.get_feature_names_out()
-    #print(palavrasClassificadaDosTextos)
 
+    # Seleciona as palavras com peso que contém nas palavras dos vocabulários
     indexCategoria = 0
     listaPalavrasComPeso = []
-    # Para cada categoria
     for vocabulario in vocabularios:
-    # Para cada palavra
         for palavra in vocabulario:
             indexPalavra = np.where(palavrasClassificadaDosTextos == palavra)
 
@@ -218,9 +216,9 @@ def categorizarTfIdf(materias):
                 peso = tfidf_matrix[0, trueIndex]
                 peso_arredondado = round(peso, 6)
                 categoria = categorias[indexCategoria]
-                # print(categoria + " - " + palavra + " - " + str(peso_arredondado))
                 listaPalavrasComPeso.append([categoria, palavra, peso_arredondado])
         indexCategoria+=1
+
 
     countMateria = 0
     # Fazer a divisão de: recorrencia da "palavra/match" na matéria atual / recorrencia da "palavra/match" no texto inteiro
@@ -233,17 +231,23 @@ def categorizarTfIdf(materias):
         print(" ")
         vetorMateria = TfidfVectorizer()
         matrix_materia = vetorMateria.fit_transform([palavrasTemp])
+
+        # Lista de palavras com peso, da matéria atual
         palavrasClassificadaDaMateria = vetorMateria.get_feature_names_out()
+        # Passa por todas as palavras da matéria atual
         for palavraAtual in palavrasClassificadaDaMateria:
+            # E busca para caso exista nas palavras gerais (palavras do vocabulário que foi guardado os pesos gerais)
             indiceComPeso = [index for index, sub_list in enumerate(listaPalavrasComPeso) if sub_list[1] == palavraAtual]
             if(np.any(indiceComPeso)):
                 objetoPalavraComPeso = listaPalavrasComPeso[indiceComPeso[0]]
                 indexPalavraMateria = np.where(palavrasClassificadaDaMateria == palavraAtual)
                 if (np.any(indexPalavraMateria[0])):
+                    # Busca o peso geral da palavra
                     trueIndex = indexPalavraMateria[0][0]
                     pesoAtual = matrix_materia[0, trueIndex]
                     pesoAtualArredondado = round(pesoAtual, 6)
                     divisaoFinal = pesoAtualArredondado/objetoPalavraComPeso[2]
+                    # Faz a divisão: do peso da palavra da matéria, divido, pelo peso da palavra no geral
                     divisaoFinalArredondado = round(divisaoFinal, 4)
                     tempCategorias.append([objetoPalavraComPeso[0], divisaoFinal])
 
@@ -255,32 +259,30 @@ def categorizarTfIdf(materias):
                     print("Atual/geral: " + str(divisaoFinalArredondado))
                     print(" ")
 
+        # Seleciona a categoria com mais quantidade de palavras na matéria.
+        # Caso 2 matérias empatar, compara os pesos somados das divisões
         if(len(tempCategorias) > 0):
             most_common_category = None
             most_common_count = 0
 
-            # Dictionary to store total weight per category
             category_weights = {}
 
-            # Iterate through the array and calculate the most common category and category weights
             for category, weight in tempCategorias:
-                # Calculate category count
                 if category in category_weights:
                     category_weights[category] += int(weight)
                 else:
                     category_weights[category] = int(weight)
 
-                # Check if this category is the most common so far
                 if category_weights[category] > most_common_count:
                     most_common_count = category_weights[category]
                     most_common_category = category
 
-            # Find categories with the most weight (in case of a tie)
             most_weighty_categories = [category for category, weight in category_weights.items() if
                                        weight == most_common_count]
 
             materia["resultadoTfIdf"] = most_weighty_categories[0]
         else:
+            # Caso não tenha palavras com peso na matéria, a categoria é definida como "outros"
             materia["resultadoTfIdf"] = "outros"
 
         print("Total de palavras encontradas: "+ str(countPalavra))
