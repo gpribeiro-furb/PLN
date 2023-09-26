@@ -7,8 +7,9 @@ from bs4 import BeautifulSoup
 from nltk.stem import RSLPStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
+import pandas as pd
 from collections import defaultdict
-
+import csv
 
 # Função para formatar a data da matéria
 def formatarData(string):
@@ -83,7 +84,7 @@ def criarJsonAtualizado():
 
 # Função para carregar o arquvo json de materias
 def carregaJson(path="materias.json"):
-    with open(path, 'r') as file:
+    with open(path, encoding="utf8") as file:
         return json.load(file)
 
 # Função para carregar as stopwords do arquivo stopwords.txt
@@ -165,13 +166,13 @@ def categorizarMaterias(materias):
             for vocabulario in vocabularios:
                 if(palavra in vocabulario):
                     valCategorias[index] = valCategorias[index] + 1
-                    materia["matches"].append(palavra)
+                    # materia["matches"].append(palavra)
                 index = index + 1
 
         # Categorizar as materias com base nas similaridades
         qntdCategoriaMaisRelacionada = max(valCategorias)
         indexCategoriaMaisRelacionada = 0 if qntdCategoriaMaisRelacionada == 0 else valCategorias.index(qntdCategoriaMaisRelacionada)
-        materia["resultado"] = categorias[indexCategoriaMaisRelacionada]
+        materia["resultadoCount"] = categorias[indexCategoriaMaisRelacionada]
 
 # Função para aplicar o Jaccard Similarity
 def categorizarJaccard(materias):
@@ -202,7 +203,7 @@ def categorizarTfIdf(materias):
 
     # Get the TF-IDF feature names (words or terms)
     palavrasClassificadaDosTextos = tfidf_vectorizer.get_feature_names_out()
-    print(palavrasClassificadaDosTextos)
+    #print(palavrasClassificadaDosTextos)
 
     indexCategoria = 0
     listaPalavrasComPeso = []
@@ -215,19 +216,21 @@ def categorizarTfIdf(materias):
             if(np.any(indexPalavra[0])):
                 trueIndex = indexPalavra[0][0]
                 peso = tfidf_matrix[0, trueIndex]
+                peso_arredondado = round(peso, 6)
                 categoria = categorias[indexCategoria]
-                print(categoria + " - " + palavra + " - " + str(peso))
-                listaPalavrasComPeso.append([categoria, palavra, peso])
-            else:
-                print(palavra)
+                # print(categoria + " - " + palavra + " - " + str(peso_arredondado))
+                listaPalavrasComPeso.append([categoria, palavra, peso_arredondado])
         indexCategoria+=1
 
+    countMateria = 0
     # Fazer a divisão de: recorrencia da "palavra/match" na matéria atual / recorrencia da "palavra/match" no texto inteiro
     for materia in materias:
+        countPalavra = 0
         palavrasTemp = " ".join(materia["descricao"])
-
         tempCategorias= []
-        print(materia["descricaoRaw"])
+        countMateria= countMateria + 1
+        print("Conteúdo da matéria "+ str(countMateria)  + ": " +materia["descricaoRaw"])
+        print(" ")
         vetorMateria = TfidfVectorizer()
         matrix_materia = vetorMateria.fit_transform([palavrasTemp])
         palavrasClassificadaDaMateria = vetorMateria.get_feature_names_out()
@@ -239,14 +242,18 @@ def categorizarTfIdf(materias):
                 if (np.any(indexPalavraMateria[0])):
                     trueIndex = indexPalavraMateria[0][0]
                     pesoAtual = matrix_materia[0, trueIndex]
-                    divisaoFinal = pesoAtual/objetoPalavraComPeso[2]
+                    pesoAtualArredondado = round(pesoAtual, 6)
+                    divisaoFinal = pesoAtualArredondado/objetoPalavraComPeso[2]
+                    divisaoFinalArredondado = round(divisaoFinal, 4)
                     tempCategorias.append([objetoPalavraComPeso[0], divisaoFinal])
 
+                    countPalavra = countPalavra + 1
                     print(objetoPalavraComPeso)
-                    print("Palavra: " + objetoPalavraComPeso[1])
-                    print("Peso atual: " + str(pesoAtual))
+                    print("Palavra detectada " + str(countPalavra) +": " + objetoPalavraComPeso[1])
+                    print("Peso atual: " + str(pesoAtualArredondado))
                     print("Peso geral: " + str(objetoPalavraComPeso[2]))
-                    print("Atual/geral: " + str(divisaoFinal))
+                    print("Atual/geral: " + str(divisaoFinalArredondado))
+                    print(" ")
 
         if(len(tempCategorias) > 0):
             # category_counts = Counter(item[0] for item in tempCategorias)
@@ -277,14 +284,15 @@ def categorizarTfIdf(materias):
             most_weighty_categories = [category for category, weight in category_weights.items() if
                                        weight == most_common_count]
 
-            materia["resultado"] = most_weighty_categories[0]
+            materia["resultadoTfIdf"] = most_weighty_categories[0]
         else:
-            materia["resultado"] = "outros"
+            materia["resultadoTfIdf"] = "outros"
 
-        print(materia["resultado"])
+        print("Total de palavras encontradas: "+ str(countPalavra))
+
+        print("Categoria definida pelo algoritmo: " +  materia["resultadoTfIdf"])
+        print("")
         print(" ================================= ")
-
-
 
 
 # criarJsonAtualizado()
@@ -293,8 +301,6 @@ for materia in materias:
     materia["descricaoRaw"] = str(materia["descricao"])
 
 stopwords = carregaStopwords()
-
-
 # nltk.download('rslp')
 # nltk.download('punkt')
 
@@ -311,10 +317,21 @@ vocabularios = []
 carregarVocabulario(categorias)
 
 # Categorização da forma antiga
-# categorizarMaterias(materias)
+categorizarMaterias(materias)
+
 
 # TO-DO: Aplicar os índices Jaccard_Similarity e tfidf
-# categorizarJaccard(materias)
+categorizarJaccard(materias)
+
+print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
+with open("resultadoJaccard.json", "w") as f:
+     json.dump(materias, f)
+
+categorizarTfIdf(materias)
+print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
+with open("resultadoTf.json", "w") as f:
+     json.dump(materias, f)
+
 #
 # for materia in materias:
 #     print(materia["titulo"])
@@ -324,17 +341,50 @@ carregarVocabulario(categorias)
 #         print("EEROOOOO================================================================")
 
 # TF-IDF
-categorizarTfIdf(materias)
+#categorizarTfIdf(materias)
+
 
 # TO-DO: Comparar com a categoria correta
 
 
-# print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
-# with open("resultado.json", "w") as f:
+#print("Exportando matérias categorizadas para o arquivo 'resultado.json'")
+#with open("resultado.json", "w") as f:
 #     json.dump(materias, f)
 
 # print(vocabularios)
 # print(materias)
 
+# df = pd.DataFrame(materias)
+# excel_writer = pd.ExcelWriter("Materias.xlsx", engine="openpyxl")
+# df.to_excel(excel_writer, sheet_name="Materias", index=False)
+# print(df)
+# df.to_csv('resultadoTf.csv', index=False)
 
+linhas = ["Número;Matéria;Resultado Count;Resultado Jaccard;Resultado TF-IDF;Categoria Real"]
+index = 1
 
+for materia in materias:
+    linha = ""
+    linha += str(index)
+    linha += ";"
+    linha += materia["descricaoRaw"]
+    linha += ";"
+    linha += materia["resultadoCount"]
+    linha += ";"
+    linha += materia["resultadoJaccard"]
+    linha += ";"
+    linha += materia["resultadoTfIdf"]
+    linha += ";"
+    linha += materia["categoria"]
+    linhas.append(linha)
+    index+=1
+
+csv_data = "\n".join(linhas)
+
+csv_file_path = "tabelaFinal.csv"
+
+with open(csv_file_path, 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+
+    for row in csv_data.split('\n'):
+        writer.writerow([row])
