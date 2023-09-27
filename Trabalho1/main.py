@@ -351,3 +351,7 @@ csv_data = csv_data.replace(" ", "")
 csv_file_path = "tabelaFinal.csv"
 with open(csv_file_path, 'w') as file:
     file.write(csv_data)
+
+print("\n===========================\n")
+print("Exportado com sucesso. Mas para questões de entrega, o arquivo 'TabelaResultados.xlsx' contém os mesmos resultado"
+      " com uma formatação melhor")
